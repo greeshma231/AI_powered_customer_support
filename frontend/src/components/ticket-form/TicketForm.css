@@ -1,0 +1,65 @@
+.ticket-form {
+  display: grid;
+  gap: 12px;
+}
+
+.ticket-form__field {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ticket-form__input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font: inherit;
+}
+
+.ticket-form__file-input {
+  padding: 8px;
+  background-color: #f9fafb;
+}
+
+.ticket-form__hint {
+  color: #4b5563;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.ticket-form__textarea {
+  resize: vertical;
+}
+
+.ticket-form__button {
+  width: fit-content;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #1f6feb;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+}
+
+.ticket-form__button:hover {
+  background-color: #1a5ec3;
+}
+
+.ticket-form__button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.ticket-form__error {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 14px;
+}
+
+.ticket-form__success {
+  margin-top: 12px;
+  color: #0a7a2f;
+  font-size: 14px;
+}
