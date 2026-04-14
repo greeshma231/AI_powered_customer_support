@@ -22,9 +22,12 @@ router.get("/", async (_request, response) => {
         id: ticket._id,
         name: ticket.name,
         email: ticket.email,
-        issueDescription: ticket.issueDescription,
+        issueDescription: ticket.issue,
         attachmentName: ticket.attachmentName,
-        attachmentDataUrl: ticket.attachmentDataUrl,
+        attachmentDataUrl: ticket.imageUrl,
+        category: ticket.category,
+        priority: ticket.priority,
+        summary: ticket.summary,
         createdAt: ticket.createdAt,
       })),
     });
@@ -64,9 +67,12 @@ router.post("/", async (request, response) => {
     const ticket = await Ticket.create({
       name,
       email,
-      issueDescription,
+      issue: issueDescription,
       attachmentName,
-      attachmentDataUrl: uploadedAttachmentUrl,
+      imageUrl: uploadedAttachmentUrl,
+      category: "bug",
+      priority: "high",
+      summary: "This is a test summary generated for the issue",
     });
 
     return response.status(201).json({
@@ -74,7 +80,7 @@ router.post("/", async (request, response) => {
         id: ticket._id,
         name: ticket.name,
         email: ticket.email,
-        issueDescription: ticket.issueDescription,
+        issueDescription: ticket.issue,
         attachmentName: ticket.attachmentName,
         createdAt: ticket.createdAt,
       },

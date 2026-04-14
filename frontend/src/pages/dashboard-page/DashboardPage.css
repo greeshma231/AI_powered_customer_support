@@ -95,6 +95,24 @@
   color: #1e293b;
 }
 
+.dashboard-page__ticket-issue-block {
+  margin-top: 8px;
+}
+
+.dashboard-page__ticket-issue-title {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.dashboard-page__ticket-extra {
+  margin-top: 8px;
+  display: grid;
+  gap: 4px;
+  color: #475569;
+  font-size: 13px;
+}
+
 .dashboard-page__ticket-attachment {
   margin-top: 10px;
   display: grid;
@@ -111,6 +129,25 @@
   width: min(240px, 100%);
   border-radius: 10px;
   border: 1px solid #dbe2ea;
+  cursor: zoom-in;
+}
+
+.dashboard-page__image-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.75);
+  padding: 16px;
+}
+
+.dashboard-page__image-modal-content {
+  max-width: min(900px, 92vw);
+  max-height: 88vh;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
 }
 
 @media (max-width: 640px) {

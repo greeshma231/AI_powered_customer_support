@@ -1,36 +1,31 @@
 import mongoose from "mongoose";
 
-const ticketSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      trim: true,
-      lowercase: true,
-    },
-    issueDescription: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    attachmentName: {
-      type: String,
-      default: "",
-    },
-    attachmentDataUrl: {
-      type: String,
-      default: "",
-    },
+const ticketSchema = new mongoose.Schema({
+  name: {
+    type: String,
   },
-  {
-    timestamps: true,
-  }
-);
+  email: {
+    type: String,
+  },
+  issue: {
+    type: String,
+  },
+  imageUrl: {
+    type: String,
+  },
+  category: {
+    type: String,
+    default: "pending",
+  },
+  priority: {
+    type: String,
+    default: "pending",
+  },
+  summary: {
+    type: String,
+    default: "",
+  },
+});
 
 const Ticket = mongoose.model("Ticket", ticketSchema);
 

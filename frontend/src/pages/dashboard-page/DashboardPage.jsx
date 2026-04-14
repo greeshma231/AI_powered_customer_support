@@ -9,6 +9,7 @@ function DashboardPage({ user, onLogout }) {
   const [tickets, setTickets] = useState([]);
   const [isLoadingTickets, setIsLoadingTickets] = useState(false);
   const [ticketsError, setTicketsError] = useState("");
+  const [selectedImage, setSelectedImage] = useState("");
 
   useEffect(() => {
     if (!isAdmin) {
@@ -74,15 +75,28 @@ function DashboardPage({ user, onLogout }) {
                     <div className="dashboard-page__ticket-meta">
                       <strong>{ticket.name}</strong>
                       <span>{ticket.email}</span>
-                      <span>{new Date(ticket.createdAt).toLocaleString()}</span>
+                      {ticket.createdAt && <span>{new Date(ticket.createdAt).toLocaleString()}</span>}
                     </div>
 
-                    <p className="dashboard-page__ticket-description">{ticket.issueDescription}</p>
+                    <div className="dashboard-page__ticket-issue-block">
+                      <h3 className="dashboard-page__ticket-issue-title">Issue</h3>
+                      <p className="dashboard-page__ticket-description">{ticket.issueDescription}</p>
+                    </div>
+
+                    <div className="dashboard-page__ticket-extra">
+                      <span>Category: {ticket.category || "pending"}</span>
+                      <span>Priority: {ticket.priority || "pending"}</span>
+                      <span>Summary: {ticket.summary || ""}</span>
+                    </div>
 
                     {ticket.attachmentDataUrl && (
                       <div className="dashboard-page__ticket-attachment">
                         <p>{ticket.attachmentName || "Attached Image"}</p>
-                        <img src={ticket.attachmentDataUrl} alt={ticket.attachmentName || "Ticket attachment"} />
+                        <img
+                          src={ticket.attachmentDataUrl}
+                          alt={ticket.attachmentName || "Ticket attachment"}
+                          onClick={() => setSelectedImage(ticket.attachmentDataUrl)}
+                        />
                       </div>
                     )}
                   </article>
@@ -94,6 +108,12 @@ function DashboardPage({ user, onLogout }) {
           <TicketForm user={user} />
         )}
       </div>
+
+      {selectedImage && (
+        <div className="dashboard-page__image-modal" onClick={() => setSelectedImage("")}>
+          <img className="dashboard-page__image-modal-content" src={selectedImage} alt="Ticket preview" />
+        </div>
+      )}
     </section>
   );
 }
