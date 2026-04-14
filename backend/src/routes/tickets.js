@@ -64,15 +64,121 @@ router.post("/", async (request, response) => {
       }
     }
 
+    let aiResult = {
+      category: "other",
+      priority: "low",
+      summary: "Fallback due to AI error",
+    };
+
+    const normalizeCategory = (value) => {
+      const allowed = ["bug", "payment", "feature request", "other"];
+      const normalized = String(value || "").trim().toLowerCase();
+      return allowed.includes(normalized) ? normalized : "other";
+    };
+
+    const normalizePriority = (value) => {
+      const allowed = ["low", "medium", "high"];
+      const normalized = String(value || "").trim().toLowerCase();
+      return allowed.includes(normalized) ? normalized : "low";
+    };
+
+    const parseAiJson = (text) => {
+      if (!text) {
+        return null;
+      }
+
+      const cleaned = String(text).replace(/```json|```/g, "").trim();
+
+      try {
+        return JSON.parse(cleaned);
+      } catch (_error) {
+        const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+          return null;
+        }
+
+        try {
+          return JSON.parse(jsonMatch[0]);
+        } catch (_innerError) {
+          return null;
+        }
+      }
+    };
+
+    if (process.env.OPENROUTER_API_KEY) {
+      try {
+        const openRouterPrompt = `Analyze this customer support issue.
+
+Issue: ${issueDescription}
+
+Return ONLY JSON:
+{
+category: string (bug / payment / feature request / other),
+priority: string (low / medium / high),
+summary: string
+}`;
+
+        const candidateModels = [
+          process.env.OPENROUTER_MODEL,
+          "openai/gpt-oss-20b:free",
+          "qwen/qwen3-coder:free",
+          "google/gemma-3-12b-it:free",
+        ].filter(Boolean);
+
+        for (const model of candidateModels) {
+          const openRouterResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+              "Content-Type": "application/json",
+              "HTTP-Referer": "http://localhost:5173",
+              "X-Title": "AI Customer Support",
+            },
+            body: JSON.stringify({
+              model,
+              temperature: 0,
+              max_tokens: 180,
+              messages: [{ role: "user", content: openRouterPrompt }],
+            }),
+          });
+
+          const openRouterData = await openRouterResponse.json();
+
+          if (!openRouterResponse.ok) {
+            console.error(`OpenRouter API error for ${model}:`, openRouterData?.error || openRouterData);
+            continue;
+          }
+
+          const aiText = openRouterData.choices?.[0]?.message?.content || "";
+          const parsedResult = parseAiJson(aiText);
+
+          if (!parsedResult) {
+            console.error(`OpenRouter returned non-JSON content for ${model}.`);
+            continue;
+          }
+
+          aiResult = {
+            category: normalizeCategory(parsedResult.category),
+            priority: normalizePriority(parsedResult.priority),
+            summary: String(parsedResult.summary || "").trim() || "Fallback due to AI error",
+          };
+
+          break;
+        }
+      } catch (aiError) {
+        console.error("OpenRouter processing error:", aiError.message);
+      }
+    }
+
     const ticket = await Ticket.create({
       name,
       email,
       issue: issueDescription,
       attachmentName,
       imageUrl: uploadedAttachmentUrl,
-      category: "bug",
-      priority: "high",
-      summary: "This is a test summary generated for the issue",
+      category: aiResult.category,
+      priority: aiResult.priority,
+      summary: aiResult.summary,
     });
 
     return response.status(201).json({
@@ -87,7 +193,7 @@ router.post("/", async (request, response) => {
     });
   } catch (error) {
     console.error("Ticket creation error:", error.message);
-    return response.status(500).json({ message: "Unable to create ticket." });
+    return response.status(500).json({ message: error.message || "Unable to create ticket." });
   }
 });
 
